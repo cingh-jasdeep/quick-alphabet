@@ -54,7 +54,8 @@ function App() {
 
   // callback for any keypress
   const onType = (event) => {
-    const keyDownUpper = event.key.toUpperCase();
+    const inputText = event.target.value;
+    const keyDownUpper = inputText[inputText.length - 1].toUpperCase();
 
     //filter key
     if (keyDownUpper.length !== 1 || !upperLetters.includes(keyDownUpper)) {
@@ -103,15 +104,13 @@ function App() {
   };
 
   useEffect(() => {
+    document.title = "Quick Alphabet";
+
     // set on mount
     setCurrentAlphabet(randomAlphabet());
     setCurrentTime(0);
-    document.addEventListener("keydown", onType);
-
-    // show virtual keyboard
 
     return function cleanup() {
-      document.removeEventListener("keydown", onType);
       stopTimer();
     };
   }, []);
@@ -147,13 +146,20 @@ function App() {
       {/* footer */}
       <div className="flex fixed bottom-0 inset-x-0 w-screen text-center text-xs">
         {/* add opacity on placeholder */}
-        <div className="cursor-text py-3 w-3/4 bg-[#f9f2e7] text-black font-bold">
+        {/* <div className="cursor-text py-3 w-3/4 bg-[#f9f2e7] text-black font-bold">
           {currentEntries.length === 0 ? (
             <span className="opacity-50 ">Type Here</span>
           ) : (
             currentEntries
           )}
-        </div>
+        </div> */}
+        <input
+          type="text"
+          placeholder="Type Here"
+          onChange={onType}
+          value={currentEntries.join("")}
+          className=" outline-1 outline-slate-300 py-3 w-3/4 bg-[#f9f2e7] text-black text-center font-bold"
+        />
         <div
           onClick={onReset}
           className="cursor-pointer py-3 w-1/4 bg-[#f1416c] text-white font-medium"
