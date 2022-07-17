@@ -5,3 +5,11 @@
 body{
   background-color: #0b1953;
 }
+
+.bg-success{
+  background-image: url(./img/watercolor.png);
+}
+
+.bg-failure{
+  background-image: url(./img/let-there-be-sun.png);
+}

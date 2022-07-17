@@ -1,24 +1,119 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef } from "react";
+import useState from "react-usestateref";
 
 function App() {
   //possible values A-Z, Success!, Failure!
-  const [currentAlphabet, setCurrentAlphabet] = useState("");
+  const [currentAlphabet, setCurrentAlphabet, currentAlphabetRef] =
+    useState("");
   //possible values time in milliseconds
-  const [currentTime, setCurrentTime] = useState();
+  const [currentTime, setCurrentTime, currentTimeRef] = useState(0);
   //best time from local storage
   const [bestTime, setBestTime] = useLocalStorage("bestTime");
+  const bestTimeRef = useRef();
+  bestTimeRef.current = bestTime;
+
   //correct entries array
-  const [currentEntries, setCurrentEntries] = useState([]);
+  const [currentEntries, setCurrentEntries, currentEntriesRef] = useState([]);
+  const upperLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+  const [timerInterval, setTimerInterval, timerIntervalRef] = useState();
 
   function randomAlphabet() {
-    const upperLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     return upperLetters[Math.floor(Math.random() * upperLetters.length)];
   }
+
+  function startTimer() {
+    setTimerInterval((timerInterval) => {
+      if (timerInterval === undefined) {
+        timerInterval = setInterval(function () {
+          setCurrentTime((time) => time + 10);
+        }, 10);
+      }
+      return timerInterval;
+    });
+  }
+
+  function stopTimer() {
+    setTimerInterval((timerInterval) => {
+      clearInterval(timerInterval);
+      return undefined;
+    });
+  }
+
+  // add 0.5 to timer for wrong input
+  function timerPenalty() {
+    setCurrentTime((time) => time + 500);
+  }
+
+  function onReset() {
+    setCurrentEntries([]);
+    stopTimer();
+    setCurrentTime(0);
+    setCurrentAlphabet(randomAlphabet());
+  }
+
+  // callback for any keypress
+  const onType = (event) => {
+    const keyDownUpper = event.key.toUpperCase();
+
+    //filter key
+    if (keyDownUpper.length !== 1 || !upperLetters.includes(keyDownUpper)) {
+      //invalid key
+      return;
+    }
+
+    const currAlphaUpper = currentAlphabetRef.current.toUpperCase();
+    if (currAlphaUpper.includes("SUC") || currAlphaUpper.includes("FAIL")) {
+      return;
+    }
+
+    if (currentEntriesRef.current.length === 0) {
+      startTimer();
+    }
+
+    if (currAlphaUpper === keyDownUpper) {
+      //match
+      setCurrentEntries((currentEntries) => [
+        ...currentEntries,
+        currAlphaUpper,
+      ]);
+      if (currentEntriesRef.current.length === 20) {
+        stopTimer();
+
+        // check high score
+        if (
+          bestTimeRef.current === undefined ||
+          currentTimeRef.current < bestTimeRef.current
+        ) {
+          // success
+          setCurrentAlphabet("Success!");
+          setBestTime(currentTimeRef.current);
+          bestTimeRef.current = currentTimeRef.current;
+        } else {
+          //failure
+          setCurrentAlphabet("Failure!");
+        }
+      } else {
+        setCurrentAlphabet(randomAlphabet());
+      }
+    } else {
+      // not match
+      timerPenalty();
+    }
+  };
 
   useEffect(() => {
     // set on mount
     setCurrentAlphabet(randomAlphabet());
     setCurrentTime(0);
+    document.addEventListener("keydown", onType);
+
+    // show virtual keyboard
+
+    return function cleanup() {
+      document.removeEventListener("keydown", onType);
+      stopTimer();
+    };
   }, []);
 
   return (
@@ -29,7 +124,15 @@ function App() {
           Typing game to see how fast you type. Timer starts when you do :)
         </div>
         {/* add special graphic on success/failure */}
-        <div className="mt-3 mx-3 bg-white rounded-lg px-2 py-6 text-5xl font-extrabold text-[#068d32]">
+        <div
+          className={`mt-3 mx-3 bg-white rounded-lg px-2 py-6 text-5xl font-extrabold text-[#068d32]${
+            currentAlphabet.toUpperCase().includes("SUC")
+              ? " bg-success"
+              : currentAlphabet.toUpperCase().includes("FAIL")
+              ? " bg-failure !text-red-500"
+              : ""
+          }`}
+        >
           {currentAlphabet}
         </div>
 
@@ -46,12 +149,15 @@ function App() {
         {/* add opacity on placeholder */}
         <div className="cursor-text py-3 w-3/4 bg-[#f9f2e7] text-black font-bold">
           {currentEntries.length === 0 ? (
-            <span className="opacity-70 ">Type Here</span>
+            <span className="opacity-50 ">Type Here</span>
           ) : (
             currentEntries
           )}
         </div>
-        <div className="cursor-pointer py-3 w-1/4 bg-[#f1416c] text-white">
+        <div
+          onClick={onReset}
+          className="cursor-pointer py-3 w-1/4 bg-[#f1416c] text-white font-medium"
+        >
           Reset
         </div>
       </div>
