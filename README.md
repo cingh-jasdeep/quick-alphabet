@@ -1,5 +1,18 @@
-# Getting Started with Create React App
+# Quick Alphabet game
 
+#### Live Url: 
+https://quick-alphabet-tortoise-interview.netlify.app/
+
+
+<img src="https://user-images.githubusercontent.com/5167015/179392555-584d24ff-fed8-4e77-9f7d-d13b0406cb25.png" width="200" > <img src="https://user-images.githubusercontent.com/5167015/179392557-ba60ce7f-7306-4a11-a0fd-b33433241dcd.png" width="200">
+
+
+
+### Purpose: Made for an interview assignment
+
+
+
+## React based Project
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
