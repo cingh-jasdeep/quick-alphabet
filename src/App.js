@@ -55,10 +55,10 @@ function App() {
   // callback for any keypress
   const onType = (event) => {
     const inputText = event.target.value;
-    const keyDownUpper = inputText[inputText.length - 1].toUpperCase();
+    const keyPress = inputText[inputText.length - 1].toUpperCase();
 
     //filter key
-    if (keyDownUpper.length !== 1 || !upperLetters.includes(keyDownUpper)) {
+    if (!upperLetters.includes(keyPress)) {
       //invalid key
       return;
     }
@@ -72,7 +72,7 @@ function App() {
       startTimer();
     }
 
-    if (currAlphaUpper === keyDownUpper) {
+    if (currAlphaUpper === keyPress) {
       //match
       setCurrentEntries((currentEntries) => [
         ...currentEntries,
